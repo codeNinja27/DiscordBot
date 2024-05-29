@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from discord.ext import commands
 import requests
 import json
+import random
 
 load_dotenv()
 
@@ -22,7 +23,11 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
-onepiece_characters = ["Luffy", "Volvo", "BMW"]
+onepiece_characters = ["Luffy", "Sanji", "Zoro", "Nami", "Usopp", "Chopper", "Robin", "Franky", "Brook", "Jinbe", "Ace", "Nico Robin", "Kid", "Law", "Kizaru", "Big Mom", "Shanks", "Blackbeard", "Buggy"]
+
+sad_words = ["sad", "sadge", "depressed", "depressing", "unhappy", "angry", "miserable"]
+
+starter_encouragements = ["Cheer up!", "Hang in there", "You are a great person/bot", "You are amazing!",  "It's just a simulation", "Take it easy!", "Hang in there"]
 
 
 @client.event
@@ -35,14 +40,18 @@ async def on_message(message):
   if message.author == client.user:
     print("Message from self")
     return
-
-  if message.content.startswith('$hello'):
+  msg = message.content
+    
+  if msg.startswith('$hello'):
     print("Message from $hello")
     await message.channel.send('Hello!')
     
-  if message.content.startswith('$inspire'):
+  if msg.startswith('$inspire'):
     quote = get_quote()
     await message.channel.send(quote)
+
+  if any(word in msg for word in sad_words):
+    await message.channel.send(random.choice(starter_encouragements))
 
 
 token = os.getenv("TOKEN2")
