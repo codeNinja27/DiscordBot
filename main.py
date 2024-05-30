@@ -20,15 +20,17 @@ def get_quote():
   except Exception as e:
     print(f"Error fetching quote: {e}")
     return "Could not fetch a quote at this time."
-
+    
+##Insert encouragements into the database
 def update_encouragements(encouraging_message):
-  if "encouragements" in db.keys():
+  if "encouragements" in db.keys(): ##checking if the key is in the database already
     encouragements = db["encouragements"]
     encouragements.append(encouraging_message)
     db[encouragements] = encouragements
   else:
     db["encouragements"] = [encouraging_message]
-
+    
+##Deleting encouragements from the database
 def delete_encouragement(index):
   encouragements = db["encouragements"]
   if len(encouragements) > index:
@@ -41,7 +43,7 @@ client = discord.Client(intents=intents)
 
 onepiece_characters = ["Luffy", "Sanji", "Zoro", "Nami", "Usopp", "Chopper", "Robin", "Franky", "Brook", "Jinbe", "Ace", "Nico Robin", "Kid", "Law", "Kizaru", "Big Mom", "Shanks", "Blackbeard", "Buggy"]
 
-sad_words = ["sad", "sadge", "depressed", "depressing", "unhappy", "angry", "miserable", "crying"]
+sad_words = ["sad", "sadge", "depressed", "depressing", "unhappy", "angry", "miserable", "crying", "Depression"]
 
 starter_encouragements = ["Cheer up!", "Hang in there!", "You are a great person/bot", "You are amazing!",  "It's just a simulation!", "Take it easy!", "You a like the sun!", "whoa...like you the best person i seen in my life"]
 
@@ -66,28 +68,41 @@ async def on_message(message):
     quote = get_quote()
     await message.channel.send(quote)
 
-  # options = starter_encouragements
-
-  # if "encouragements" in db.keys():
-  #   options = options + db["encouragements"]
+  options = starter_encouragements
+  
+  if "encouragements" in db.keys(): ##checking if the key is in the database already
+    options = options + db["encouragements"].value
 
   if any(word in msg for word in sad_words):
-    await message.channel.send(random.choice(starter_encouragements))
+    await message.channel.send(random.choice(options))
 
-  # if msg.startswith("$new"):
-  #   encouraging_message = msg.split("$new ", 1)[1]
-  #   update_encouragements(encouraging_message)
-  #   await message.channel.send("New encouraging message added.")
+  #adding new messeges to the database
+  if msg.startswith("$new"):
+    if "encouragetions" in db.keys():##checking if the key is in the database already
+      encouraging_message = msg.split("$new ", 1)[1]
+      update_encouragements(encouraging_message)
+    await message.channel.send("New encouraging message added.")
 
-  # if msg.starrtswith("$del"):
-  #   encouragements = []
-  #   if "encouragements" in db.keys():
-  #     index = int(msg.split("$del", 1)[1])
-  #     delete_encouragement(index)
-  #     encouragements = db["encouragements"]
-  #   await message.channel.send(encouragements)
+  #deleting messeges from the database
+  if msg.startswith("$del"):
+    encouragements = []
+    if "encouragements" in db.keys():##checking if the key is in the database already
+      index = int(msg.split("$del", 1)[1])
+      delete_encouragement(index)
+      encouragements = db["encouragements"]
+    await message.channel.send(encouragements)
       
+  #showing encouragement messages of database + starter_encouragements
+  if msg.startswith("$show"):
+    await message.channel.send(options)
     
+  #showing one piece character list 
+  if msg.startswith("$char"):
+    await message.channel.send(onepiece_characters)
+
+  #get a random one piece character
+  if msg.startswith("$onepiece"):
+    await message.channel.send("You are " + random.choice(onepiece_characters) + "!")
 
 token = os.getenv("TOKEN")
 print(token)
