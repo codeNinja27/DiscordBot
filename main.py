@@ -26,7 +26,7 @@ def update_encouragements(encouraging_message):
   if "encouragements" in db.keys(): ##checking if the key is in the database already
     encouragements = db["encouragements"]
     encouragements.append(encouraging_message)
-    db[encouragements] = encouragements
+    db["encouragements"] = encouragements
   else:
     db["encouragements"] = [encouraging_message]
     
@@ -37,13 +37,13 @@ def delete_encouragement(index):
     del encouragements[index]
     db["encouragements"] = encouragements
 
-intents = discord.Intents.default()
+intents = discord.Intents.default()  
 intents.message_content = True
 client = discord.Client(intents=intents)
 
 onepiece_characters = ["Luffy", "Sanji", "Zoro", "Nami", "Usopp", "Chopper", "Robin", "Franky", "Brook", "Jinbe", "Ace", "Nico Robin", "Kid", "Law", "Kizaru", "Big Mom", "Shanks", "Blackbeard", "Buggy"]
 
-sad_words = ["sad", "sadge", "depressed", "depressing", "unhappy", "angry", "miserable", "crying", "Depression"]
+sad_words = ["sad", "sadge", "depressed", "depressing", "unhappy", "angry", "miserable", "crying", "Depression", "cry", "joji"]
 
 starter_encouragements = ["Cheer up!", "Hang in there!", "You are a great person/bot", "You are amazing!",  "It's just a simulation!", "Take it easy!", "You a like the sun!", "whoa...like you the best person i seen in my life"]
 
@@ -78,7 +78,7 @@ async def on_message(message):
 
   #adding new messeges to the database
   if msg.startswith("$new"):
-    if "encouragetions" in db.keys():##checking if the key is in the database already
+    if "encouragements" in db.keys():##checking if the key is in the database already
       encouraging_message = msg.split("$new ", 1)[1]
       update_encouragements(encouraging_message)
     await message.channel.send("New encouraging message added.")
