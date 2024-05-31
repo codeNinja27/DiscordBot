@@ -7,7 +7,7 @@ import requests
 import json
 import random
 from replit import db
-# from keep_alive import keep_alive
+from keep_alive import keep_alive
 
 load_dotenv()
 
@@ -48,6 +48,9 @@ sad_words = ["sad", "sadge", "depressed", "depressing", "unhappy", "angry", "mis
 starter_encouragements = ["Cheer up!", "Hang in there!", "You are a great person/bot", "You are amazing!",  "It's just a simulation!", "Take it easy!", "You a like the sun!", "whoa...like you the best person i seen in my life"]
 
 
+if "responding" not in db.keys():
+  db["responding"] = True
+
 @client.event
 async def on_ready():
   print('We have logged in as {0.user}'.format(client))
@@ -68,13 +71,13 @@ async def on_message(message):
     quote = get_quote()
     await message.channel.send(quote)
 
-  options = starter_encouragements
+  if db["responding"]:
+    options = starter_encouragements
+    if "encouragements" in db.keys(): ##checking if the key is in the database already
+      options = options + db["encouragements"].value
   
-  if "encouragements" in db.keys(): ##checking if the key is in the database already
-    options = options + db["encouragements"].value
-
-  if any(word in msg for word in sad_words):
-    await message.channel.send(random.choice(options))
+    if any(word in msg for word in sad_words):
+      await message.channel.send(random.choice(options))
 
   #adding new messeges to the database
   if msg.startswith("$new"):
@@ -93,9 +96,26 @@ async def on_message(message):
     await message.channel.send(encouragements)
       
   #showing encouragement messages of database + starter_encouragements
-  if msg.startswith("$show"):
-    await message.channel.send(options)
-    
+  if msg.startswith("$list"):
+    # await message.channel.send(options)
+    encouragements = []
+    if "encouragements" in db.keys():
+      encouragements = db["encouragements"].value
+    await message.channel.send(encouragements)
+
+  if msg.startswith("$responding"):
+    value = msg.split("$responding ", 1)[1]
+
+    if value.lower() == "true":
+      # if "responding" in db.keys():
+      db["responding"] = True
+      await message.channel.send("Responding is on.")
+    else:
+      # if "responding" in db.keys():
+      db["responding"] = False
+      await message.channel.send("Responding is off.")
+
+  #Onepiece content
   #showing one piece character list 
   if msg.startswith("$char"):
     await message.channel.send(onepiece_characters)
@@ -105,10 +125,11 @@ async def on_message(message):
     await message.channel.send("You are " + random.choice(onepiece_characters) + "!")
 
 token = os.getenv("TOKEN")
-print(token)
+
 if token is None:
   print(
       "Error: Environment variable 'TOKEN' not found. Please set it   with your Discord bot token."
   )
 else:
+  keep_alive()
   client.run(token)
