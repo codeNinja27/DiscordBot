@@ -124,12 +124,15 @@ async def on_message(message):
   if msg.startswith("$onepiece"):
     await message.channel.send("You are " + random.choice(onepiece_characters) + "!")
 
-token = os.getenv("TOKEN")
+# token = os.getenv("TOKEN")
 
-if token is None:
-  print(
-      "Error: Environment variable 'TOKEN' not found. Please set it   with your Discord bot token."
-  )
-else:
-  keep_alive()
-  client.run(token)
+# if token is None:
+#   print(
+#       "Error: Environment variable 'TOKEN' not found. Please set it   with your Discord bot token."
+#   )
+# else:
+#   keep_alive()
+#   client.run(token)
+
+keep_alive()
+client.run(os.getenv("TOKEN"))
