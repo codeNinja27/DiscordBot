@@ -1,13 +1,16 @@
 import discord
 import os
-from discord import client
-from dotenv import load_dotenv
-from discord.ext import commands
+import asyncio
 import requests
 import json
 import random
+import youtube_dl
 from replit import db
 from keep_alive import keep_alive
+from discord import client
+from dotenv import load_dotenv
+from discord.ext import commands
+
 
 load_dotenv()
 
@@ -124,15 +127,56 @@ async def on_message(message):
   if msg.startswith("$onepiece"):
     await message.channel.send("You are " + random.choice(onepiece_characters) + "!")
 
-# token = os.getenv("TOKEN")
 
-# if token is None:
-#   print(
-#       "Error: Environment variable 'TOKEN' not found. Please set it   with your Discord bot token."
-#   )
-# else:
-#   keep_alive()
-#   client.run(token)
+youtube_dl.utils.bug_reports_message = lambda: ''
+ytdl_format_options = {
+  'format': 'bestaudio/best',
+  'restrictfilenames': True,
+  'noplaylist': True,
+  'nocheckcertificate': True,
+  'ignoreerrors': False,
+  'logtostderr': False,
+  'quiet': True,
+  'no_warnings': True,
+  'defaul_search': 'auto',
+  'sourceaddreses': '0.0.0.0'
+}
+
+ffmpeg_options = {
+  'options': '-vn'
+}
+
+ytd1 = youtube_dl.YoutubeDL(ytdl_format_options)
+
+class YTDLSource(discord.PCMVolumeTransformer):
+  def _init_(self, source, *, data, volume=0.5):
+    super().init(source, volume)
+    self.data = data
+    self.title = data.get('title')
+    self.url = ''
+    
+  @classmethod
+  async def from_url(cls, url, *, loop = None, stream = False):
+    loop = loop or asyncio.get_event_loop()
+    data = await.loop.run_in_executor(None, lambda: ytdl.extract_info(url, download = not stream))
+    if 'entries' in data:
+      data = data['entries'][0]
+    filename =  data['title'] if stream else ytdl.prepare_filename(data)
+    return filename
+
+
+      
+    
+
+token = os.getenv("TOKEN")
+
+if token is None:
+  print(
+      "Error: Environment variable 'TOKEN' not found. Please set it   with your Discord bot token."
+  )
+else:
+  keep_alive()
+  client.run(token)
 
 keep_alive()
-client.run(os.getenv("TOKEN"))
+# client.run(os.getenv("TOKEN"))
